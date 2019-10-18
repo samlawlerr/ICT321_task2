@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Flight Routes</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+         * element that contains the map. */
+        #map {
+            height: 100%;
+        }
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div id="floating-panel">
+    <input onclick="initMap();" type=button value="Refresh Map">
+    <input id="saveButton" type=button value="Save Route">
+    <input onclick="getRoute();" type=button value="Get Route">
+    <input id="routeInputName">
+</div>
+<div id="map"></div>
+<script>
+
+    // This example creates an interactive map which constructs a polyline based on
+    // user clicks. Note that the polyline only appears once its path property
+    // contains two LatLng coordinates.
+
+    var poly;
+    var map;
+    var markerArray = [];
+    var routeName = "";
+
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 13,
+            center: {lat: -26.7230, lng: 153.0840},  // Center the map on Chicago, USA.
+        });
+
+        poly = new google.maps.Polyline({
+            strokeColor: '#FF0000',
+            strokeOpacity: 1.0,
+            strokeWeight: 3
+        });
+        poly.setMap(map);
+
+        // Add a listener for the click event
+        map.addListener('click', addLatLng);
+    }
+
+    // Handles click events on a map, and adds a new point to the Polyline.
+    function addLatLng(event) {
+        var path = poly.getPath();
+
+        // Because path is an MVCArray, we can simply append a new coordinate
+        // and it will automatically appear.
+        path.push(event.latLng);
+
+        // Add a new marker at the new plotted point on the polyline.
+        var marker = new google.maps.Marker({
+            position: event.latLng,
+            title: '#' + path.getLength(),
+            map: map
+        });
+        markerArray.push(marker)
+    }
+
+    $(document).ready(function(){
+        $("#saveButton").click(function(){
+            console.log("I clicked on save!");
+
+            var openXML = "<routes><route_name = " + routeName +">";
+            console.log(openXML);
+            console.log(markerArray);
+            
+            for (var i = 0; i < markerArray.length; i++) {
+            var lat = markerArray[i].position.lat();
+            var lng = markerArray[i].position.lng();
+            //console.log("latitude = " + lat);
+            //console.log("longitude = " + lng);
+
+
+
+            var routeLeg ="<routeleg><pos>" + "Pos " + i + "</pos> <latlng>" + lat + ", " + lng + "</latlng></routeleg>";
+            console.log(routeLeg);
+            openXML += routeLeg;
+
+        }
+        var closeXML = "</route></routes>";
+        console.log(closeXML);
+        var openClose = openXML + closeXML;
+        $.ajax( {
+                url: "http://localhost:8080/saveRoute?" + openClose + ".xml",
+                method: "get",
+                dataType: "text" // force the returned result as a string for printing
+                }).done( function(msg) {
+                    });
+                });
+    });
+
+
+
+
+
+
+            // find out that ^ so we can pass the maps / marker data to the webservice
+
+            /*$.ajax( {
+                url: "http://localhost:8080/books?booksXML=" + myxml,
+                method: "get",
+                dataType: "text" // force the returned result as a string for printing
+            }).done( function(msg) {
+                 });*/
+
+
+        });
+    });
+
+
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCO3hE4bE7WV7mGuXL4kn9caoWI44tD8Ic&callback=initMap">
+</script>
+</body>
+</html>
