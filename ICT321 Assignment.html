@@ -73,39 +73,39 @@
         markerArray.push(marker)
     }
 
-    $(document).ready(function(){
-        $("#saveButton").click(function(){
+    $(document).ready(function() {
+        $("#saveButton").click(function () {
             console.log("I clicked on save!");
 
-            var openXML = "<routes><route_name = " + routeName +">";
+            var openXML = "<routes><route_name = " + routeName + ">";
             console.log(openXML);
             console.log(markerArray);
 
             for (var i = 0; i < markerArray.length; i++) {
-            var lat = markerArray[i].position.lat();
-            var lng = markerArray[i].position.lng();
-            //console.log("latitude = " + lat);
-            //console.log("longitude = " + lng);
+                var lat = markerArray[i].position.lat();
+                var lng = markerArray[i].position.lng();
+                //console.log("latitude = " + lat);
+                //console.log("longitude = " + lng);
 
 
+                var routeLeg = "<routeleg><pos>" + "Pos " + i + "</pos> <latlng>" + lat + ", " + lng + "</latlng></routeleg>";
+                console.log(routeLeg);
+                openXML += routeLeg;
 
-            var routeLeg ="<routeleg><pos>" + "Pos " + i + "</pos> <latlng>" + lat + ", " + lng + "</latlng></routeleg>";
-            console.log(routeLeg);
-            openXML += routeLeg;
-
-        }
+            }
             var closeXML = "</route></routes>";
             console.log(closeXML);
             var openClose = openXML + closeXML;
 
-    //         $.ajax( {
-    //             url: "http://localhost:8080/saveRoute?=" + openClose + ".xml",
-    //             method: "get",
-    //             dataType: "text" // force the returned result as a string for printing
-    //             }).done( function(msg) {
-    //                 });
-    //             });
-    // });
+            $.ajax({
+                url: "http://localhost:8080/saveRoute?=" + openClose + ".xml",
+                method: "get",
+                dataType: "text" // force the returned result as a string for printing
+            }).done(function (msg) {
+            });
+        });
+    });
+
 
 
 
@@ -122,8 +122,7 @@
                  });*/
 
 
-        });
-    });
+
 
 
 </script>
