@@ -4,8 +4,6 @@ from xml.dom import minidom, Node
 @route('/getroute/<planeroute>')
 def get_route(planeroute):
     print(planeroute)
-
-
     DOMTree = minidom.parse("planeroute.xml")
 
     route = DOMTree.getElementsByTagName("book")
