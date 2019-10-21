@@ -3,6 +3,7 @@
 <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*"/>
     <title>Flight Routes</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <style>
@@ -23,7 +24,7 @@
 <div id="floating-panel">
     <input onclick="initMap();" type=button value="Refresh Map">
     <input id="saveButton" type=button value="Save Route">
-    <input onclick="getRoute();" type=button value="Get Route">
+    <input id="getButton" type=button value="Get Route">
     <input id="routeInputName">
 </div>
 <div id="map"></div>
@@ -36,7 +37,7 @@
     var poly;
     var map;
     var markerArray = [];
-    var routeName = "";
+
 
 
     function initMap() {
@@ -73,13 +74,15 @@
         markerArray.push(marker)
     }
 
+
     $(document).ready(function() {
         $("#saveButton").click(function () {
             console.log("I clicked on save!");
+            var routeName = $('#routeInputName').val();
+            console.log(routeName);
 
-            var openXML = "<routes><route_name = " + routeName + ">";
-            console.log(openXML);
-            console.log(markerArray);
+            var openXML = "<routes><route name= \"" + routeName + "\">";
+
 
             for (var i = 0; i < markerArray.length; i++) {
                 var lat = markerArray[i].position.lat();
@@ -89,16 +92,18 @@
 
 
                 var routeLeg = "<routeleg><pos>" + "Pos " + i + "</pos> <latlng>" + lat + ", " + lng + "</latlng></routeleg>";
-                console.log(routeLeg);
                 openXML += routeLeg;
 
             }
             var closeXML = "</route></routes>";
-            console.log(closeXML);
             var openClose = openXML + closeXML;
 
+            console.log(openClose);
+
+            xmlTest = "<adriano></adriano>"
+
             $.ajax({
-                url: "http://localhost:8080/saveRoute?=" + openClose + ".xml",
+                url: "http://localhost:8080/saveRoute?route=" + openClose,
                 method: "get",
                 dataType: "text" // force the returned result as a string for printing
             }).done(function (msg) {
@@ -106,22 +111,15 @@
         });
     });
 
+    $(document).ready(function() {
+        $("#getButton").click(function () {
+            console.log("I clicked on get!");
+            //function will retrieve an XML object from your microservice via another AJAX web service.
+            //populates the map
+            //extract the individual latitude and Longitude coordinates from the XML object and push them into the MVCArray.
 
-
-
-
-
-
-            // find out that ^ so we can pass the maps / marker data to the webservice
-
-            /*$.ajax( {
-                url: "http://localhost:8080/books?booksXML=" + myxml,
-                method: "get",
-                dataType: "text" // force the returned result as a string for printing
-            }).done( function(msg) {
-                 });*/
-
-
+        })
+    });
 
 
 

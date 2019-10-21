@@ -22,11 +22,14 @@ def get_route(planeroute):
     response.headers['Content-type'] = 'application/xml'
     return route
 
-@route('/saveroute')
+@route('/saveRoute')
 def save_route():
-    Books = request.query.booksXML
-    DOMTree = minidom.parseString(Books)
-    fileName = "planeroute"
+
+
+    routes = request.query.route
+    print(routes)
+    DOMTree = minidom.parseString(routes)
+    fileName = request.query.routeName
     print(fileName)
 
     for child in DOMTree.childNodes:
@@ -36,13 +39,16 @@ def save_route():
                     for child3 in child2.childNodes:
                         if child3.nodeType == 1:
                             print("   ", child3.nodeName, ", ", child3.childNodes[0].nodeValue)
-                            if child3.nodeName == "author":
+                            if child3.nodeName == "LatLon":
                                 aArray = (child3.childNodes[0].nodeValue)
                                 Latitude = minidom.parseString("<Latitude>%s</Latitude>" % aArray[0]).documentElement
-                                Longitude = minidom.parseString("<Longitude>%s</Longitude>" % aArray[2]).documentElement
+                                Longitude = minidom.parseString("<Longitude>%s</Longitude>" % aArray[1]).documentElement
                                 child3.parentNode.appendChild(Latitude)
                                 child3.parentNode.appendChild(Longitude)
 
+    fileName = "routeName"  # change to route name in the future
+    with open(fileName + '.xml', 'w') as f:
+        f.write(DOMTree.toxml())
 
 
     with open(fileName + '.xml', 'w') as f:
