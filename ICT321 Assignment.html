@@ -86,7 +86,7 @@
             for (var i = 0; i < markerArray.length; i++) {
                 var lat = markerArray[i].position.lat();
                 var lng = markerArray[i].position.lng();
-                var routeLeg = "<routeleg><pos>" + "Pos " + i + "</pos> <latlng>" + lat + ", " + lng + "</latlng></routeleg>";
+                var routeLeg = "<routeleg><pos>" + "Pos " + i + "</pos><latlng>" + lat + ", " + lng + "</latlng></routeleg>";
                 openXML += routeLeg;
             }
 
@@ -107,34 +107,46 @@
         $("#getButton").click(function () {
             console.log("I clicked on get!");
             var routeName = $('#routeInputName').val();
-             $.ajax({
+            $.ajax({
                 url: "http://localhost:8080/getRoute/" + routeName,
                 method: "get",
                 dataType: "xml" // force the returned result as a string for printing
-             }).done(function (msg) {
+            }).done(function (msg) {
 
+                var xmlDoc = msg;
 
-                 var markers = msg.getElementsByTagName("routeleg");
-                 poly = new google.maps.Polyline({
-                     strokeColor: '#FF0000',
-                     strokeOpacity: 1.0,
-                     strokeWeight: 3
-                 });
+                console.log("The get is returning: ");
+                console.log(msg);
+                console.log(xmlDoc);
+
+                var markers = xmlDoc.getElementsByTagName("routeleg");
+                console.log("markers: ");
+                console.log(markers);
+
+                poly = new google.maps.Polyline({
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 3
+                });
 
                 poly.setMap(map);
                 var path = poly.getPath();
 
                 for (var i = 0; i < markers.length; i++){
-                    var latlng = new google.maps.LatLng(
-                        parseFloat(markers[i].getElementsByTagName("latitude")[0].textContent),
-                        parseFloat(markers[i].getElementsByTagName("longitude")[0].textContent));
-                        path.push(latlng);
+
+
+                    var lat = parseFloat(markers[i].getElementsByTagName("Latitude")[0].textContent);
+                    var lon = parseFloat(markers[i].getElementsByTagName("Longitude")[0].textContent);
+
+                    var latlng = new google.maps.LatLng(lat, lon);
 
                     var marker = new google.maps.Marker({
-                            position: latLng,
-                            title: '#' + path.getLength(),
-                            map: map
-                        });
+                        position: latlng,
+                        title: '#' + path.getLength(),
+                        map: map
+                    });
+
+                    path.push(latlng);
                 }
             });
         })

@@ -1,26 +1,32 @@
 from bottle import route, run, request, response
 from xml.dom import minidom, Node
 
+def get_lat_lon(latLng):
+    print("latLng: %s" % latLng)
+    a = latLng.replace(",", "")
+    latLngArray = a.split()
+    return latLngArray
+
+
 @route('/getRoute/<routeName>')
 def get_Route(routeName):
     print(routeName)
-    DOMTree = minidom.parse(routeName + ".xml")
 
-    routes = DOMTree.getElementsByTagName("route")
-    for child in DOMTree.childNodes:
-        if child.nodeType == 1:
-            for child2 in child.childNodes:
-                if child2.nodeType == 1:
-                    for child3 in child2.childNodes:
-                        if child3.nodeType == 1:
-                            if child3.nodeName == "route":
-                                if child3.childNodes[0].nodeValue == routeName:
-                                    print(child3.parentNode.toxml())
-                                    routes = child3.parentNode.toxml()
+    DOMTree = minidom.parse(routeName + ".xml")
+    routes = DOMTree.getElementsByTagName("routes")
+    print(routeName + ".xml")
+
+    for routte in routes:
+        for child in routte.childNodes:
+            if child.nodeType == 1:
+                if child.nodeType == "routeName":
+                    print(routte.toxml())
+                    reroute = routte.toxml()
 
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Content-type'] = 'application/xml'
-    return routes
+
+    return routes[0].toxml()
 
 @route('/saveRoute')
 def save_route():
@@ -34,14 +40,19 @@ def save_route():
         if child.nodeType == 1:
             for child2 in child.childNodes:
                 if child2.nodeType == 1:
+                    print("here")
                     for child3 in child2.childNodes:
                         if child3.nodeType == 1:
-                            if child3.nodeName == "latLng":
-                                aArray = (child3.childNodes[0].nodeValue)
-                                latitude = minidom.parseString("<Latitude>%s</Latitude>" % aArray[0]).documentElement
-                                longitude = minidom.parseString("<Longitude>%s</Longitude>" % aArray[1]).documentElement
-                                child3.parentNode.appendChild(latitude)
-                                child3.parentNode.appendChild(longitude)
+                            print("here3")
+                            for child4 in child3.childNodes:
+                                if child4.nodeName == "latlng":
+                                # print(child3.nodeName)
+                                    print("in child 3")
+                                    aArray = get_lat_lon(child4.childNodes[0].nodeValue)
+                                    latitude = minidom.parseString("<Latitude>%s</Latitude>" % aArray[0]).documentElement
+                                    longitude = minidom.parseString("<Longitude>%s</Longitude>" % aArray[1]).documentElement
+                                    child4.parentNode.appendChild(latitude)
+                                    child4.parentNode.appendChild(longitude)
 
     with open(fileName + '.xml', 'w') as f:
         f.write(DOMTree.toxml())
