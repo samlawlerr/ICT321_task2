@@ -78,32 +78,24 @@
     $(document).ready(function() {
         $("#saveButton").click(function () {
             console.log("I clicked on save!");
+
             var routeName = $('#routeInputName').val();
             console.log(routeName);
-
             var openXML = "<routes><route name= \"" + routeName + "\">";
-
 
             for (var i = 0; i < markerArray.length; i++) {
                 var lat = markerArray[i].position.lat();
                 var lng = markerArray[i].position.lng();
-                //console.log("latitude = " + lat);
-                //console.log("longitude = " + lng);
-
-
                 var routeLeg = "<routeleg><pos>" + "Pos " + i + "</pos> <latlng>" + lat + ", " + lng + "</latlng></routeleg>";
                 openXML += routeLeg;
-
             }
+
             var closeXML = "</route></routes>";
             var openClose = openXML + closeXML;
-
             console.log(openClose);
 
-            xmlTest = "<adriano></adriano>"
-
             $.ajax({
-                url: "http://localhost:8080/saveRoute?route=" + openClose,
+                url: "http://localhost:8080/saveRoute?route=" + openClose + "&routeName=" + routeName,
                 method: "get",
                 dataType: "text" // force the returned result as a string for printing
             }).done(function (msg) {
@@ -114,10 +106,37 @@
     $(document).ready(function() {
         $("#getButton").click(function () {
             console.log("I clicked on get!");
-            //function will retrieve an XML object from your microservice via another AJAX web service.
-            //populates the map
-            //extract the individual latitude and Longitude coordinates from the XML object and push them into the MVCArray.
+            var routeName = $('#routeInputName').val();
+             $.ajax({
+                url: "http://localhost:8080/getRoute/" + routeName,
+                method: "get",
+                dataType: "xml" // force the returned result as a string for printing
+             }).done(function (msg) {
 
+
+                 var markers = msg.getElementsByTagName("routeleg");
+                 poly = new google.maps.Polyline({
+                     strokeColor: '#FF0000',
+                     strokeOpacity: 1.0,
+                     strokeWeight: 3
+                 });
+
+                poly.setMap(map);
+                var path = poly.getPath();
+
+                for (var i = 0; i < markers.length; i++){
+                    var latlng = new google.maps.LatLng(
+                        parseFloat(markers[i].getElementsByTagName("latitude")[0].textContent),
+                        parseFloat(markers[i].getElementsByTagName("longitude")[0].textContent));
+                        path.push(latlng);
+
+                    var marker = new google.maps.Marker({
+                            position: latLng,
+                            title: '#' + path.getLength(),
+                            map: map
+                        });
+                }
+            });
         })
     });
 
