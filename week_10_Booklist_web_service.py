@@ -6,7 +6,7 @@ def get_Route(routeName):
     print(routeName)
     DOMTree = minidom.parse(routeName + ".xml")
 
-    route = DOMTree.getElementsByTagName("route")
+    routes = DOMTree.getElementsByTagName("route")
     for child in DOMTree.childNodes:
         if child.nodeType == 1:
             for child2 in child.childNodes:
@@ -16,11 +16,11 @@ def get_Route(routeName):
                             if child3.nodeName == "route":
                                 if child3.childNodes[0].nodeValue == routeName:
                                     print(child3.parentNode.toxml())
-                                    route = child3.parentNode.toxml()
+                                    routes = child3.parentNode.toxml()
 
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Content-type'] = 'application/xml'
-    return route
+    return routes
 
 @route('/saveRoute')
 def save_route():
@@ -43,7 +43,6 @@ def save_route():
                                 child3.parentNode.appendChild(latitude)
                                 child3.parentNode.appendChild(longitude)
 
-    #fileName = "routeName"  # change to route name in the future
     with open(fileName + '.xml', 'w') as f:
         f.write(DOMTree.toxml())
 
