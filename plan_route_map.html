@@ -7,12 +7,9 @@
     <title>Flight Routes</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <style>
-        /* Always set the map height explicitly to define the size of the div
-         * element that contains the map. */
         #map {
             height: 100%;
         }
-        /* Optional: Makes the sample page fill the window. */
         html, body {
             height: 100%;
             margin: 0;
@@ -29,23 +26,18 @@
 </div>
 <div id="map"></div>
 <script>
-
-    // This example creates an interactive map which constructs a polyline based on
-    // user clicks. Note that the polyline only appears once its path property
-    // contains two LatLng coordinates.
-
+    //creating variables
     var poly;
     var map;
     var markerArray = [];
-
-
-
+    //this is a function that is called to create the google map
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 13,
-            center: {lat: -26.7230, lng: 153.0840},  // Center the map on Chicago, USA.
+            //this sets the map to the default location of europe
+            zoom: 5,
+            center: {lat: 54.5260, lng: 14.972231},
         });
-
+        //this is creates a the poly lines in between markers
         poly = new google.maps.Polyline({
             strokeColor: '#FF0000',
             strokeOpacity: 1.0,
@@ -53,19 +45,13 @@
         });
         poly.setMap(map);
 
-        // Add a listener for the click event
         map.addListener('click', addLatLng);
     }
-
-    // Handles click events on a map, and adds a new point to the Polyline.
+    //function that adds markers and polylines to the map
     function addLatLng(event) {
         var path = poly.getPath();
-
-        // Because path is an MVCArray, we can simply append a new coordinate
-        // and it will automatically appear.
         path.push(event.latLng);
 
-        // Add a new marker at the new plotted point on the polyline.
         var marker = new google.maps.Marker({
             position: event.latLng,
             title: '#' + path.getLength(),
@@ -74,11 +60,11 @@
         markerArray.push(marker)
     }
 
-
+    //code for the save button and function
     $(document).ready(function() {
         $("#saveButton").click(function () {
             console.log("I clicked on save!");
-
+            //this code takes marker positions(Lat, Lng) from the array and puts it into an XML format and outputs a XML file
             var routeName = $('#routeInputName').val();
             console.log(routeName);
             var openXML = "<routes><route name= \"" + routeName + "\">";
@@ -93,24 +79,25 @@
             var closeXML = "</route></routes>";
             var openClose = openXML + closeXML;
             console.log(openClose);
-
+            //saves the XML to the url address
             $.ajax({
                 url: "http://localhost:8080/saveRoute?route=" + openClose + "&routeName=" + routeName,
                 method: "get",
-                dataType: "text" // force the returned result as a string for printing
+                dataType: "text"
             }).done(function (msg) {
             });
         });
     });
-
+    //code for the save button and function
     $(document).ready(function() {
         $("#getButton").click(function () {
             console.log("I clicked on get!");
             var routeName = $('#routeInputName').val();
+            //retrieves the saved XML from the url address
             $.ajax({
                 url: "http://localhost:8080/getRoute/" + routeName,
                 method: "get",
-                dataType: "xml" // force the returned result as a string for printing
+                dataType: "xml"
             }).done(function (msg) {
 
                 var xmlDoc = msg;
@@ -118,7 +105,7 @@
                 console.log("The get is returning: ");
                 console.log(msg);
                 console.log(xmlDoc);
-
+                //sets up and repopulates the map with markers and polylines
                 var markers = xmlDoc.getElementsByTagName("routeleg");
                 console.log("markers: ");
                 console.log(markers);
@@ -133,7 +120,6 @@
                 var path = poly.getPath();
 
                 for (var i = 0; i < markers.length; i++){
-
 
                     var lat = parseFloat(markers[i].getElementsByTagName("Latitude")[0].textContent);
                     var lon = parseFloat(markers[i].getElementsByTagName("Longitude")[0].textContent);
@@ -151,8 +137,6 @@
             });
         })
     });
-
-
 
 </script>
 <script async defer
