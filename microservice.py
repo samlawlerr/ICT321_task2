@@ -42,14 +42,10 @@ def save_route():
         if child.nodeType == 1:
             for child2 in child.childNodes:
                 if child2.nodeType == 1:
-                    print("here")
                     for child3 in child2.childNodes:
                         if child3.nodeType == 1:
-                            print("here3")
                             for child4 in child3.childNodes:
                                 if child4.nodeName == "latlng":
-                                # print(child3.nodeName)
-                                    print("in child 3")
                                     aArray = get_lat_lon(child4.childNodes[0].nodeValue)
                                     latitude = minidom.parseString("<Latitude>%s</Latitude>" % aArray[0]).documentElement
                                     longitude = minidom.parseString("<Longitude>%s</Longitude>" % aArray[1]).documentElement
